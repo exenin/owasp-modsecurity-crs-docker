@@ -9,9 +9,9 @@ RUN apt-get update && \
     apt-get -y install python git ca-certificates iproute2
 
 RUN cd /opt && \
-  git clone https://github.com/exenin/owasp-modsecurity-crs.git owasp-modsecurity-crs-3.2 && \
-  cd owasp-modsecurity-crs-3.2  
-  #git checkout -qf ${COMMIT} 
+  git clone https://github.com/SpiderLabs/owasp-modsecurity-crs.git owasp-modsecurity-crs-3.2 && \
+  cd owasp-modsecurity-crs-3.2
+  #git checkout -qf ${COMMIT}
 
 RUN cd /opt && \
   cp -R /opt/owasp-modsecurity-crs-3.2/ /etc/apache2/modsecurity.d/owasp-crs/ && \
