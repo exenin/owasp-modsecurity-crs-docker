@@ -1,28 +1,25 @@
-![Travis build v3.2/dev](https://badges.herokuapp.com/travis/SpiderLabs/owasp-modsecurity-crs?branch=v3.2/dev&label=CRS%20v3.2/dev)![Travis build v3.1/dev](https://badges.herokuapp.com/travis/SpiderLabs/owasp-modsecurity-crs?branch=v3.1/dev&label=CRS%20v3.1/dev)![Travis build v3.0/dev](https://badges.herokuapp.com/travis/SpiderLabs/owasp-modsecurity-crs?branch=v3.0/dev&label=CRS%20v3.0/dev)
-[![OWASP Flagship](https://img.shields.io/badge/owasp-flagship%20project-38a047.svg)](https://www.owasp.org/index.php/OWASP_Project_Inventory#tab=Flagship_Projects)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1390/badge)](https://bestpractices.coreinfrastructure.org/projects/1390)
+OWASP MODSECURITY NGINX FWD PROXY
+https://github.com/SpiderLabs/owasp-modsecurity-crs
 
-# OWASP ModSecurity Core Rule Set (CRS)
 
-The OWASP ModSecurity Core Rule Set (CRS) is a set of generic attack detection rules for use with ModSecurity or compatible web application firewalls. The CRS aims to protect web applications from a wide range of attacks, including the OWASP Top Ten, with a minimum of false alerts.
+Example
+docker build -t owasp/modsecurity-crs .
+docker run -p 80:80 -ti -e PARANOIA=5 --rm owasp/modsecurity-crs
+or
 
-## CRS Resources
+docker build -t owasp/modsecurity-crs .
+docker run -ti -p 80:80 -e PARANOIA=5 -e PROXY=1 --rm owasp/modsecurity-crs
+Environment Variables
+The following environment variables are available to configure the CRS container:
 
-Please see the [OWASP ModSecurity Core Rule Set page](https://coreruleset.org/) to get introduced to the CRS and view resources on installation, configuration, and working with the CRS.
+Name    Description
+PARANOIA    An integer indicating the paranoia level (Default: 1)
+PROXY    An integer indicating if reverse proxy mode is enabled (Default: 0)
+UPSTREAM    The IP Address (and optional port) of the upstream server when proxy mode is enabled. (Default: the container's default router, port 81) (Examples: 192.0.2.2 or 192.0.2.2:80)
+Notes regarding reverse proxy
+In order to more easily test drive the CRS ruleset, we include support for an technique called Reverse Proxy. Using this technique, you keep your pre-existing web server online at a non-standard host and port, and then configure the CRS container to accept public traffic. The CRS container then proxies the traffic to your pre-existing webserver. This way, you can test out CRS with any web server. Some notes:
 
-## Contributing to the CRS
-
-We strive to make the OWASP ModSecurity CRS accessible to a wide audience of beginner and experienced users. We are interested in hearing any bug reports, false positive alert reports, evasions, usability issues, and suggestions for new detections.
-
-[Create an issue on GitHub](https://github.com/SpiderLabs/owasp-modsecurity-crs/issues) to report a false positive or false negative (evasion). Please include your installed version and the relevant portions of your ModSecurity audit log.
-
-[Sign up for the mailing list](https://lists.owasp.org/mailman/listinfo/owasp-modsecurity-core-rule-set) to ask general usage questions and participate in discussions on the CRS.
-
-[Join the #modsecurity channel on Freenode IRC](https://webchat.freenode.net/?channels=%23modsecurity) to chat about the CRS.
-
-## License
-
-Copyright (c) 2006-2018 Trustwave and contributors. All rights reserved.
-
-The OWASP ModSecurity Core Rule Set is distributed under Apache Software License (ASL) version 2. Please see the enclosed LICENSE file for full details.
-
+Proxy is not enabled by default. You'll need to pass the -e PROXY=1 environment variable to enable it.
+You'll want to configure your typical webserver to listen on your docker interface only (i.e. 172.17.0.1:81) so that public traffic doesn't reach it.
+Do not use 127.0.0.1 as an UPSTREAM address. The loopback interface inside the docker container is not the same interface as the one on docker host.
+Note that traffic coming through this proxy will look like it's coming from the wrong address. You may want to configure your pre-existing webserver to use the X-Forwarded-For HTTP header to populate the remote address field for traffic from the proxy.
